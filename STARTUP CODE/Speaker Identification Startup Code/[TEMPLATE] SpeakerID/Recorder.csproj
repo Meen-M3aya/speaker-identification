@@ -117,8 +117,8 @@
     <Compile Include="Recorder\BaseRecorder.cs" />
     <Compile Include="Recorder\Decoder.cs" />
     <Compile Include="Recorder\Encoder.cs" />
-    <Compile Include="Testing\TestDTW.cs" />
     <Compile Include="Testing\TestingDTW.cs" />
+    <Compile Include="TestLoader.cs" />
     <EmbeddedResource Include="GUI\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
