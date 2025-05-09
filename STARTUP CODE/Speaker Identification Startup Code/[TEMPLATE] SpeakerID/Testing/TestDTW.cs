@@ -21,7 +21,7 @@ namespace Recorder
             return LoadDataset(trainingListFileName);
         }
 
-        
+
         static public List<User> LoadTestcase1Testing(string testingListFileName)
         {
             return LoadDataset(testingListFileName);
@@ -35,15 +35,15 @@ namespace Recorder
             for (int i = 0; i < testCase.Count; i++)
             {
                 for (int j = 0; j < testCase[i].UserTemplates.Count; j++)
-			    {
+                {
                     if (testCase[i].UserName != testcaseResult[resultIndex])
                         misclassifiedSamples++;
-                    
+
                     resultIndex++;
-			    }
+                }
             }
 
-            return (double) misclassifiedSamples / testcaseResult.Count;
+            return (double)misclassifiedSamples / testcaseResult.Count;
         }
 
         //11 users. each user has ~10 medium sized training samples (with silent parts removed).
@@ -127,28 +127,28 @@ namespace Recorder
 
         static private AudioSignal openNISTWav(string filename)
         {
-            int sample_rate = 0, sample_count =0, sample_n_bytes = 0;
+            int sample_rate = 0, sample_count = 0, sample_n_bytes = 0;
             StreamReader reader = new StreamReader(filename);
-              
-              while(true)
-              {
-                  string line = reader.ReadLine();
-                  var splittedLine = line.Split(' ');
-                  if (splittedLine[0] == "sample_count")
-                  {
-                      sample_count = int.Parse(splittedLine[2]);
-                  }
-                  else if (splittedLine[0] == "sample_rate")
-                  {
-                      sample_rate = int.Parse(splittedLine[2]);
-                  }
-                  else if (splittedLine[0] == "sample_n_bytes")
-                  {
-                      sample_n_bytes = int.Parse(splittedLine[2]);
-                  }
-                  else if (splittedLine[0] == "end_head")
-                      break;
-              }
+
+            while (true)
+            {
+                string line = reader.ReadLine();
+                var splittedLine = line.Split(' ');
+                if (splittedLine[0] == "sample_count")
+                {
+                    sample_count = int.Parse(splittedLine[2]);
+                }
+                else if (splittedLine[0] == "sample_rate")
+                {
+                    sample_rate = int.Parse(splittedLine[2]);
+                }
+                else if (splittedLine[0] == "sample_n_bytes")
+                {
+                    sample_n_bytes = int.Parse(splittedLine[2]);
+                }
+                else if (splittedLine[0] == "end_head")
+                    break;
+            }
             reader.Close();
             byte[] wav = File.ReadAllBytes(filename);
 
@@ -171,7 +171,7 @@ namespace Recorder
             AudioSignal signal = new AudioSignal();
             signal.sampleRate = sample_rate;
             signal.data = data;
-            signal.signalLengthInMilliSec = (double) 1000.0 * sample_count / sample_rate ;
+            signal.signalLengthInMilliSec = (double)1000.0 * sample_count / sample_rate;
             return signal;
         }
 
@@ -180,7 +180,7 @@ namespace Recorder
             List<User> newDataset = new List<User>();
             foreach (User user in dataset)
             {
-                
+
                 int numberOfSequences = user.UserTemplates.Count;
                 //NOTE: i didn't handle the case if the number of sequences is not divisible by the shrinkage factor :)
                 int newNumberOfSequences = numberOfSequences / shrinkagefactor;
@@ -207,7 +207,7 @@ namespace Recorder
                         user.UserTemplates[j].data.CopyTo(concUser.UserTemplates[i].data, concIndex);
                         concIndex += user.UserTemplates[j].data.Length;
                     }
-                    
+
                     startIndex += shrinkagefactor;
                 }
 

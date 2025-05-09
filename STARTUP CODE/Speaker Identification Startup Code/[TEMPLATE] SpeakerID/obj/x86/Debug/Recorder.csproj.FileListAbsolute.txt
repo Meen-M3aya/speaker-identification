@@ -194,3 +194,23 @@ E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\
 E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\obj\x86\Debug\Recorder.csproj.CopyComplete
 E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\obj\x86\Debug\Recorder.exe
 E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\obj\x86\Debug\Recorder.pdb
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\Recorder.exe
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\Recorder.pdb
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\AForge.dll
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\AForge.Math.dll
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\SharpDX.DirectSound.dll
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\SharpDX.dll
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\AForge.xml
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\AForge.Math.xml
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\MWArray.xml
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\NAudio.xml
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\SharpDX.xml
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\bin\Debug\SharpDX.DirectSound.xml
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\obj\x86\Debug\Recorder.csproj.AssemblyReference.cache
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\obj\x86\Debug\Recorder.MainForm.resources
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\obj\x86\Debug\Recorder.Properties.Resources.resources
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\obj\x86\Debug\Recorder.csproj.GenerateResource.cache
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\obj\x86\Debug\Recorder.csproj.CoreCompileInputs.cache
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\obj\x86\Debug\Recorder.csproj.CopyComplete
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\obj\x86\Debug\Recorder.exe
+D:\3rd year\Algo\speaker-identification\STARTUP CODE\Speaker Identification Startup Code\[TEMPLATE] SpeakerID\obj\x86\Debug\Recorder.pdb
