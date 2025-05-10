@@ -150,6 +150,11 @@ namespace Recorder
             while (true)
             {
                 string line = reader.ReadLine();
+                if (line == null)
+                {
+                    Console.WriteLine("corrupt Data");
+                    break;
+                }
                 var splittedLine = line.Split(' ');
                 if (splittedLine[0] == "sample_count")
                 {

@@ -9,8 +9,8 @@ namespace Recorder
         [STAThread]
         static void Main()
         {
-            string trainingFile = @"D:\3rd year\Algo\TEST CASES\[2] COMPLETE\Complete SpeakerID Dataset\TrainingList.txt";
-            string testingFile = @"D:\3rd year\Algo\TEST CASES\[2] COMPLETE\Complete SpeakerID Dataset\TestingList.txt";
+            string trainingFile = @"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[2] COMPLETE\Case1\Complete SpeakerID Dataset\TrainingList.txt";
+            string testingFile = @"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[2] COMPLETE\Case1\Complete SpeakerID Dataset\TestingList.txt";
             int testCaseNumber = 1;
 
             TestingDTW.TestCase(trainingFile, testingFile, testCaseNumber);

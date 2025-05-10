@@ -21,28 +21,33 @@ namespace Recorder.Testing
             List<User> TestingData = new List<User>();
             List<UserSequence> TrainingUserSequences = new List<UserSequence>();
 
-
+            Console.WriteLine("before loading training Data");
             if (testCaseNumber == 1)
                 TrainingData = TestcaseLoader.LoadTestcase1Training(TrainingFileListName);
             else if (testCaseNumber == 2)
                 TrainingData = TestcaseLoader.LoadTestcase2Training(TrainingFileListName);
 
-            Console.WriteLine("after loading Testing Data");
+            Console.WriteLine("after loading Training Data");
             for (int i = 0; i < TrainingData.Count; i++)
             {
                 for (int j = 0; j < TrainingData[i].UserTemplates.Count; j++)
                 {
                     UserSequence userSequence = new UserSequence();
                     userSequence.userName = TrainingData[i].UserName;
+                    Console.WriteLine($"extracting i: {i}, j: {j}");
+
+
                     userSequence.sequence = AudioOperations.ExtractFeatures(TrainingData[i].UserTemplates[j]);
                     TrainingUserSequences.Add(userSequence);
                 }
             }
+            Console.WriteLine("before loading testing Data");
 
             if (testCaseNumber == 1)
                 TestingData = TestcaseLoader.LoadTestcase1Testing(TestingFileListName);
             else if (testCaseNumber == 2)
                 TestingData = TestcaseLoader.LoadTestcase2Testing(TestingFileListName);
+            Console.WriteLine("after loading testing Data");
 
 
 
