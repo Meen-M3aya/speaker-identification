@@ -146,7 +146,6 @@ namespace Recorder
         {
             int sample_rate = 0, sample_count = 0, sample_n_bytes = 0;
             StreamReader reader = new StreamReader(filename);
-            Console.WriteLine(filename);
 
 
 
@@ -156,12 +155,7 @@ namespace Recorder
                 if (line == null)
                 {
                     Console.WriteLine("corrupt Data");
-                    break;
-                    continue;
-                }
-                else
-                {
-                    Console.WriteLine(line);
+                    return AudioOperations.OpenAudioFile(filename);
                 }
                 var splittedLine = line.Split(' ');
                 if (splittedLine[0] == "sample_count")

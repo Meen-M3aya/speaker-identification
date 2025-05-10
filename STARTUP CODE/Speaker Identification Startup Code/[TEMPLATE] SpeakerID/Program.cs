@@ -13,8 +13,8 @@ namespace Recorder
             string testingFile = @"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[2] COMPLETE\Case1\Complete SpeakerID Dataset\TestingList.txt";
             int testCaseNumber = 1;
 
-            //TestingDTW.TestCase(trainingFile, testingFile, testCaseNumber);
-            TestingDTW.sampling();
+            TestingDTW.TestCase(trainingFile, testingFile, testCaseNumber);
+            //TestingDTW.sampling();
 
             if (Environment.OSVersion.Version.Major >= 6)
                 SetProcessDPIAware();

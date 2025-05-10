@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using Recorder.MFCC;
 using Recorder;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Collections.Concurrent;
 
 namespace Recorder.Testing
 {
@@ -105,19 +108,27 @@ namespace Recorder.Testing
                 TrainingData = TestcaseLoader.LoadTestcase2Training(TrainingFileListName);
 
             Console.WriteLine("after loading Training Data");
-            for (int i = 0; i < TrainingData.Count; i++)
+            ConcurrentBag<UserSequence> threadSafeSequences = new ConcurrentBag<UserSequence>();
+
+            Parallel.For(0, TrainingData.Count, i =>
             {
                 for (int j = 0; j < TrainingData[i].UserTemplates.Count; j++)
                 {
-                    UserSequence userSequence = new UserSequence();
-                    userSequence.userName = TrainingData[i].UserName;
+                    UserSequence userSequence = new UserSequence
+                    {
+                        userName = TrainingData[i].UserName
+                    };
+
                     Console.WriteLine($"extracting i: {i}, j: {j}");
 
-
                     userSequence.sequence = AudioOperations.ExtractFeatures(TrainingData[i].UserTemplates[j]);
-                    TrainingUserSequences.Add(userSequence);
+                    threadSafeSequences.Add(userSequence);  // Thread-safe add
                 }
-            }
+            });
+
+            // Now add all the results to the original list (outside the parallel block)
+            TrainingUserSequences.AddRange(threadSafeSequences);
+
             Console.WriteLine("before loading testing Data");
 
             if (testCaseNumber == 1)
@@ -128,28 +139,27 @@ namespace Recorder.Testing
 
 
 
-            for (int i = 0; i < 1; i++)
+            Parallel.For(0, TestingData.Count, i =>
             {
-                for (int j = 0; j < 1; j++)
+                for (int j = 0; j < TestingData[i].UserTemplates.Count; j++)
                 {
-                    UserSequence testedUser = new UserSequence();
-                    testedUser.userName = TestingData[i].UserName;
-                    testedUser.sequence = AudioOperations.ExtractFeatures(TestingData[i].UserTemplates[j]);
-
+                    UserSequence testedUser = new UserSequence
+                    {
+                        userName = TestingData[i].UserName,
+                        sequence = AudioOperations.ExtractFeatures(TestingData[i].UserTemplates[j])
+                    };
 
                     double minimumCost = double.PositiveInfinity;
-                    String matchedUserName = null;
+                    string matchedUserName = null;
+
                     for (int z = 0; z < TrainingUserSequences.Count; z++)
                     {
-                        int n = TrainingUserSequences[z].sequence.Frames.Length, m = testedUser.sequence.Frames.Length;
+                        int n = TrainingUserSequences[z].sequence.Frames.Length;
+                        int m = testedUser.sequence.Frames.Length;
 
-                        double[][] distanceMatrix = new double[n][];
-                        for (int a = 0; a < n; a++)
-                            distanceMatrix[a] = new double[m];
+                        double[][] distanceMatrix = DTW.ConstructDistanceMatrix(n, m, TrainingUserSequences[z].sequence, testedUser.sequence);
+                        double result = DTW.DTWDistance(TrainingUserSequences[z].sequence, testedUser.sequence, distanceMatrix);
 
-                        distanceMatrix = DTW.ConstructDistanceMatrix(n, m, TrainingUserSequences[z].sequence, testedUser.sequence);
-
-                        double result = DTW.CalculateDTWDistanceWithWindow(TrainingUserSequences[z].sequence, testedUser.sequence, distanceMatrix, 5);
                         Console.WriteLine($"measuring i: {i}, j: {j}, result= {result}");
 
                         if (minimumCost > result)
@@ -160,10 +170,12 @@ namespace Recorder.Testing
                     }
 
                     if (matchedUserName != null && matchedUserName != testedUser.userName)
-                        WrongAnswers++;
-
+                    {
+                        Interlocked.Increment(ref WrongAnswers);  // Safe increment for shared variable
+                    }
                 }
-            }
+            });
+
 
             Console.WriteLine("Number of Wrong Answers for Testcase " + testCaseNumber + ": " + WrongAnswers);
 
