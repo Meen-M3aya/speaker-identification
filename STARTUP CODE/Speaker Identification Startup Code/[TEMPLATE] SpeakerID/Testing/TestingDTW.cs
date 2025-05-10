@@ -22,64 +22,64 @@ namespace Recorder.Testing
             List<User> TestingData = new List<User>();
             List<UserSequence> TrainingUserSequences = new List<UserSequence>();
             UserSequence u = new UserSequence();
-            /*Console.WriteLine("before user 1");
+            Console.WriteLine("before user 1");
 
             u.userName = "1";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(TestcaseLoader.openNISTWav(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\conspiracy_Crystal_US_English.wav")));
+            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\conspiracy_Crystal_US_English.wav")));
             TrainingUserSequences.Add(u);
             Console.WriteLine("user 1");
 
             u.userName = "2";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(TestcaseLoader.openNISTWav(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\conspiracy_Mike_US_English.wav")));
+            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\conspiracy_Mike_US_English.wav")));
             TrainingUserSequences.Add(u);
             Console.WriteLine("user 2");
 
             u.userName = "3";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(TestcaseLoader.openNISTWav(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\conspiracy_Rich_US_English.wav")));
+            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\conspiracy_Rich_US_English.wav")));
             TrainingUserSequences.Add(u);
             Console.WriteLine("user 3");
 
             u.userName = "1";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(TestcaseLoader.openNISTWav(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\plausible_Crystal_US_English.wav")));
-            TrainingUserSequences.Add(u); 
+            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\plausible_Crystal_US_English.wav")));
+            TrainingUserSequences.Add(u);
             u.userName = "2";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(TestcaseLoader.openNISTWav(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\plausible_Mike_US_English.wav")));
-            TrainingUserSequences.Add(u); 
+            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\plausible_Mike_US_English.wav")));
+            TrainingUserSequences.Add(u);
             u.userName = "3";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(TestcaseLoader.openNISTWav(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\plausible_Rich_US_English.wav")));
-            TrainingUserSequences.Add(u);*/
-            
+            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\plausible_Rich_US_English.wav")));
+            TrainingUserSequences.Add(u);
 
 
 
-                    UserSequence testedUser = new UserSequence();
-                    testedUser.userName = "3";
-                    testedUser.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(TestcaseLoader.openNISTWav(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Input sample\ItIsPlausible_Rich_US_English.wav")));
+
+            UserSequence testedUser = new UserSequence();
+            testedUser.userName = "3";
+            testedUser.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Input sample\ItIsPlausible_Rich_US_English.wav")));
 
 
-                    double minimumCost = double.PositiveInfinity;
-                    String matchedUserName = null;
-                    for (int z = 0; z < TrainingUserSequences.Count; z++)
-                    {
-                        int n = TrainingUserSequences[z].sequence.Frames.Length, m = testedUser.sequence.Frames.Length;
+            double minimumCost = double.PositiveInfinity;
+            String matchedUserName = null;
+            for (int z = 0; z < TrainingUserSequences.Count; z++)
+            {
+                int n = TrainingUserSequences[z].sequence.Frames.Length, m = testedUser.sequence.Frames.Length;
 
-                        double[][] distanceMatrix = new double[n][];
-                        for (int a = 0; a < n; a++)
-                            distanceMatrix[a] = new double[m];
+                double[][] distanceMatrix = new double[n][];
+                for (int a = 0; a < n; a++)
+                    distanceMatrix[a] = new double[m];
 
-                        distanceMatrix = DTW.ConstructDistanceMatrix(n, m, TrainingUserSequences[z].sequence, testedUser.sequence);
+                distanceMatrix = DTW.ConstructDistanceMatrix(n, m, TrainingUserSequences[z].sequence, testedUser.sequence);
 
-                        double result = DTW.CalculateDTWDistanceWithWindow(TrainingUserSequences[z].sequence, testedUser.sequence, distanceMatrix, 5);
+                double result = DTW.CalculateDTWDistanceWithWindow(TrainingUserSequences[z].sequence, testedUser.sequence, distanceMatrix, 5);
 
-                        if (minimumCost > result)
-                        {
-                            minimumCost = result;
-                            matchedUserName = TrainingUserSequences[z].userName;
-                        }
-                    }
+                if (minimumCost > result)
+                {
+                    minimumCost = result;
+                    matchedUserName = TrainingUserSequences[z].userName;
+                }
+            }
 
-                    if (matchedUserName != null && matchedUserName != testedUser.userName)
-                        WrongAnswers++;
+            if (matchedUserName != null && matchedUserName != testedUser.userName)
+                WrongAnswers++;
 
              
             
