@@ -142,10 +142,13 @@ namespace Recorder
             return s / 32768.0;
         }
 
-        static private AudioSignal openNISTWav(string filename)
+        static public AudioSignal openNISTWav(string filename)
         {
             int sample_rate = 0, sample_count = 0, sample_n_bytes = 0;
             StreamReader reader = new StreamReader(filename);
+            Console.WriteLine(filename);
+
+
 
             while (true)
             {
@@ -154,6 +157,11 @@ namespace Recorder
                 {
                     Console.WriteLine("corrupt Data");
                     break;
+                    continue;
+                }
+                else
+                {
+                    Console.WriteLine(line);
                 }
                 var splittedLine = line.Split(' ');
                 if (splittedLine[0] == "sample_count")
