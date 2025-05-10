@@ -40,56 +40,45 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Accord, Version=2.12.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Release\net40\Accord.dll</HintPath>
+    <Reference Include="Accord">
+      <HintPath>lib\Accord.dll</HintPath>
     </Reference>
-    <Reference Include="Accord.Audio, Version=2.12.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Release\net40\Accord.Audio.dll</HintPath>
+    <Reference Include="Accord.Audio">
+      <HintPath>lib\Accord.Audio.dll</HintPath>
     </Reference>
-    <Reference Include="Accord.Audio.Formats, Version=2.12.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Release\net40\Accord.Audio.Formats.dll</HintPath>
+    <Reference Include="Accord.Audio.Formats">
+      <HintPath>lib\Accord.Audio.Formats.dll</HintPath>
     </Reference>
-    <Reference Include="Accord.Controls.Audio, Version=2.12.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Release\net40\Accord.Controls.Audio.dll</HintPath>
+    <Reference Include="Accord.Controls">
+      <HintPath>lib\Accord.Controls.dll</HintPath>
     </Reference>
-    <Reference Include="Accord.DirectSound, Version=2.12.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Release\net40\Accord.DirectSound.dll</HintPath>
+    <Reference Include="Accord.Controls.Audio">
+      <HintPath>lib\Accord.Controls.Audio.dll</HintPath>
     </Reference>
-    <Reference Include="Accord.Math, Version=2.12.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Release\net40\Accord.Math.dll</HintPath>
+    <Reference Include="Accord.DirectSound">
+      <HintPath>lib\Accord.DirectSound.dll</HintPath>
     </Reference>
-    <Reference Include="AForge, Version=2.2.3.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\x86\Release\AForge.dll</HintPath>
+    <Reference Include="Accord.MachineLearning">
+      <HintPath>lib\Accord.MachineLearning.dll</HintPath>
     </Reference>
-    <Reference Include="AForge.Math, Version=2.2.3.0, Culture=neutral, PublicKeyToken=abba2e25397ee8c9, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\x86\Release\AForge.Math.dll</HintPath>
+    <Reference Include="Accord.Math">
+      <HintPath>lib\Accord.Math.dll</HintPath>
+    </Reference>
+    <Reference Include="Accord.Statistics">
+      <HintPath>lib\Accord.Statistics.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge">
+      <HintPath>lib\AForge.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Math">
+      <HintPath>lib\AForge.Math.dll</HintPath>
     </Reference>
     <Reference Include="MATLABAudioFunctionsNative">
-      <HintPath>..\MATLABAudioFunctions\distrib\MATLABAudioFunctionsNative.dll</HintPath>
+      <HintPath>lib\MATLABAudioFunctionsNative.dll</HintPath>
     </Reference>
     <Reference Include="MWArray, Version=2.15.0.0, Culture=neutral, PublicKeyToken=e1d84a0da19db86f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\Program Files\MATLAB\R2012a\toolbox\dotnetbuilder\bin\win64\v2.0\MWArray.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudio">
-      <HintPath>..\..\..\..\..\..\..\Downloads\naudio\NAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudio.WindowsMediaFormat">
-      <HintPath>..\..\..\..\..\..\..\Downloads\naudio\NAudio.WindowsMediaFormat.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX">
-      <HintPath>bin\x86\Release\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.DirectSound">
-      <HintPath>bin\x86\Release\SharpDX.DirectSound.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
