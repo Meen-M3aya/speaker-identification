@@ -15,5 +15,11 @@ namespace Recorder
             EnrollmentWindow enrollmentWindow = new EnrollmentWindow();
             enrollmentWindow.ShowDialog();
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            MainForm identification = new MainForm();
+            identification.ShowDialog();
+        }
     }
 }

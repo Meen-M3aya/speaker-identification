@@ -34,9 +34,10 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(484, 233);
+            this.button1.Location = new System.Drawing.Point(363, 189);
+            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(142, 73);
+            this.button1.Size = new System.Drawing.Size(106, 59);
             this.button1.TabIndex = 0;
             this.button1.Text = "Entrollment";
             this.button1.UseVisualStyleBackColor = true;
@@ -44,20 +45,23 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(197, 233);
+            this.button2.Location = new System.Drawing.Point(148, 189);
+            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(142, 73);
+            this.button2.Size = new System.Drawing.Size(106, 59);
             this.button2.TabIndex = 1;
             this.button2.Text = "Identification";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // EntryWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(600, 366);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "EntryWindow";
             this.Text = "EntryWindow";
             this.ResumeLayout(false);

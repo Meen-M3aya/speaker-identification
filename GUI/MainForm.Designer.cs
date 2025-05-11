@@ -39,6 +39,7 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadTrain1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.btnStop = new System.Windows.Forms.Button();
             this.btnRecord = new System.Windows.Forms.Button();
@@ -51,7 +52,7 @@
             this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.loadTrain1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.matchedUserLabel = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
@@ -63,7 +64,7 @@
             this.optionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(323, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(331, 24);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -111,6 +112,13 @@
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.optionsToolStripMenuItem.Text = "Edit";
+            // 
+            // loadTrain1ToolStripMenuItem
+            // 
+            this.loadTrain1ToolStripMenuItem.Name = "loadTrain1ToolStripMenuItem";
+            this.loadTrain1ToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.loadTrain1ToolStripMenuItem.Text = "Load Train1";
+            this.loadTrain1ToolStripMenuItem.Click += new System.EventHandler(this.loadTrain1ToolStripMenuItem_Click);
             // 
             // openFileDialog1
             // 
@@ -231,18 +239,21 @@
             this.timer1.Enabled = true;
             this.timer1.Tick += new System.EventHandler(this.updateTimer_Tick);
             // 
-            // loadTrain1ToolStripMenuItem
+            // matchedUserLabel
             // 
-            this.loadTrain1ToolStripMenuItem.Name = "loadTrain1ToolStripMenuItem";
-            this.loadTrain1ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.loadTrain1ToolStripMenuItem.Text = "Load Train1";
-            this.loadTrain1ToolStripMenuItem.Click += new System.EventHandler(this.loadTrain1ToolStripMenuItem_Click);
+            this.matchedUserLabel.AutoSize = true;
+            this.matchedUserLabel.Location = new System.Drawing.Point(142, 178);
+            this.matchedUserLabel.Name = "matchedUserLabel";
+            this.matchedUserLabel.Size = new System.Drawing.Size(64, 13);
+            this.matchedUserLabel.TabIndex = 9;
+            this.matchedUserLabel.Text = "Best Match:";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(323, 149);
+            this.ClientSize = new System.Drawing.Size(331, 232);
+            this.Controls.Add(this.matchedUserLabel);
             this.Controls.Add(this.lbLength);
             this.Controls.Add(this.lbPosition);
             this.Controls.Add(this.chart);
@@ -286,5 +297,6 @@
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.Button btnRecord;
         private System.Windows.Forms.ToolStripMenuItem loadTrain1ToolStripMenuItem;
+        private System.Windows.Forms.Label matchedUserLabel;
     }
 }

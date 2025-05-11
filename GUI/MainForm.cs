@@ -6,6 +6,7 @@ using Accord.Audio;
 using Accord.Audio.Formats;
 using Accord.DirectSound;
 using Accord.Audio.Filters;
+using Recorder.FileManager;
 using Recorder.Recorder;
 using Recorder.MFCC;
 
@@ -308,7 +309,45 @@ namespace Recorder
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
+            //Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
 
+            //creates or overwrites file
+            Stream tmpFileStream = new FileStream(@".\tmp.wav", FileMode.Create);
+            this.encoder.Save(tmpFileStream);
+            AudioSignal templateSignal = AudioOperations.OpenAudioFile(@".\tmp.wav");
+            templateSignal = AudioOperations.RemoveSilence(templateSignal);
+            Sequence templateSequence = AudioOperations.ExtractFeatures(templateSignal);
+
+            double bestDistance = double.PositiveInfinity;
+            String nameOfMatch = "";
+         
+
+            foreach(String userDir in Directory.GetDirectories(@"..\..\Templates\"))
+            {
+                double distanceSum = 0;
+                String[] userAudios = Directory.GetFiles(userDir);
+                foreach(String seq in userAudios)
+                {
+                    FileManager<Sequence> fm = new FileManager<Sequence>(seq);
+                    Sequence currentSeq = fm.LoadFromFile()[0];
+                    distanceSum = distanceSum + DTW.DTWDistance(templateSequence, currentSeq);
+
+                }
+                double avgDistance = distanceSum / userAudios.Length;
+                if(avgDistance < bestDistance)
+                {
+                    bestDistance = avgDistance;
+                    String[] directory = userDir.Split('\\');
+                    nameOfMatch = directory[directory.Length - 1];
+                }
+            }
+
+            //return the name
+
+            matchedUserLabel.Text = "Best Match: " + nameOfMatch;
+
+
+            
         }
 
         private void loadTrain1ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -319,9 +358,5 @@ namespace Recorder
             var hobba = TestcaseLoader.LoadTestcase2Training(fileDialog.FileName);
         }
 
-
-        
-
-
-     }
+    }
 }

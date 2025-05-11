@@ -291,9 +291,9 @@ namespace Recorder
             }
 
             // Load the signal and extract the sequence
-            //AudioSignal signal = AudioOperations.OpenAudioFile(this.encoder.stream);
-            //signal = AudioOperations.RemoveSilence(signal);
-            Sequence seq = new Sequence();
+            AudioSignal signal = AudioOperations.OpenAudioFile(this.encoder.stream);
+            signal = AudioOperations.RemoveSilence(signal);
+            Sequence seq = AudioOperations.ExtractFeatures(signal);
 
             // Define the Templates folder path
             string templatesFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Templates");
