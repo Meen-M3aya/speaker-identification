@@ -3,6 +3,7 @@ using Accord.Audio.Formats;
 using Recorder.MFCC;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -21,6 +22,21 @@ namespace Recorder
         public static AudioSignal OpenAudioFile(string filePath)
         {
             WaveDecoder waveDecoder = new WaveDecoder(filePath);
+
+            AudioSignal signal = new AudioSignal();
+
+            signal.sampleRate = waveDecoder.SampleRate;
+            signal.signalLengthInMilliSec = waveDecoder.Duration;
+            Signal tempSignal = waveDecoder.Decode(waveDecoder.Frames);
+            signal.data = new double[waveDecoder.Frames];
+            tempSignal.CopyTo(signal.data);
+            return signal;
+        }
+
+        public static AudioSignal OpenAudioFile(MemoryStream stream)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            WaveDecoder waveDecoder = new WaveDecoder(stream);
 
             AudioSignal signal = new AudioSignal();
 
