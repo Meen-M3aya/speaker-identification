@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Accord.Audio;
+using Recorder.MFCC;
+using Recorder.Recorder;
+using Recorder.FileManager;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Accord.Audio;
-using Accord.Audio.Formats;
-using Accord.DirectSound;
-using Accord.Audio.Filters;
-using Recorder.FileManager;
-using Recorder.Recorder;
-using Recorder.MFCC;
 
 namespace Recorder
 {
@@ -16,7 +15,7 @@ namespace Recorder
     ///   Speaker Identification application.
     /// </summary>
     /// 
-    public partial class MainForm : Form
+    public partial class EnrollmentWindow : Form
     {
         /// <summary>
         /// Data of the opened audio file, contains:
@@ -25,8 +24,6 @@ namespace Recorder
         ///     3. signal length in ms
         /// </summary>
         private AudioSignal signal = null;
-        Sequence seq = null;
-       
         private string path;
 
         private Encoder encoder;
@@ -34,7 +31,7 @@ namespace Recorder
 
         private bool isRecorded;
 
-        public MainForm()
+        public EnrollmentWindow()
         {
             InitializeComponent();
 
@@ -93,7 +90,7 @@ namespace Recorder
         /// 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            Stop();   
+            Stop();
             updateButtons();
             updateWaveform(new float[BaseRecorder.FRAME_SIZE], BaseRecorder.FRAME_SIZE);
         }
@@ -119,7 +116,7 @@ namespace Recorder
         {
             this.encoder.addNewFrame(eventArgs.Signal);
             updateWaveform(this.encoder.current, eventArgs.Signal.Length);
-       }
+        }
 
 
         /// <summary>
@@ -220,8 +217,6 @@ namespace Recorder
 
             if (this.encoder != null && this.encoder.IsRunning())
             {
-                btnAdd.Enabled = false;
-                btnIdentify.Enabled = false;
                 btnPlay.Enabled = false;
                 btnStop.Enabled = true;
                 btnRecord.Enabled = false;
@@ -229,8 +224,6 @@ namespace Recorder
             }
             else if (this.decoder != null && this.decoder.IsRunning())
             {
-                btnAdd.Enabled = false;
-                btnIdentify.Enabled = false;
                 btnPlay.Enabled = false;
                 btnStop.Enabled = true;
                 btnRecord.Enabled = false;
@@ -238,8 +231,7 @@ namespace Recorder
             }
             else
             {
-                btnAdd.Enabled = this.path != null || this.encoder != null;
-                btnIdentify.Enabled = false;
+
                 btnPlay.Enabled = this.path != null || this.encoder != null;//stream != null;
                 btnStop.Enabled = false;
                 btnRecord.Enabled = true;
@@ -276,30 +268,7 @@ namespace Recorder
         {
             Close();
         }
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog open = new OpenFileDialog();
-            if (open.ShowDialog() == DialogResult.OK)
-            {
-                isRecorded = false;
-                path = open.FileName;
-                //Open the selected audio file
-                signal = AudioOperations.OpenAudioFile(path);
-                signal = AudioOperations.RemoveSilence(signal);
-                 seq = AudioOperations.ExtractFeatures(signal);
-                for (int i = 0; i < seq.Frames.Length; i++)
-                {
-                    for (int j = 0; j < 13; j++)
-                    {
 
-                        if (double.IsNaN(seq.Frames[i].Features[j]) || double.IsInfinity(seq.Frames[i].Features[j]))
-                            throw new Exception("NaN");
-                    }
-                }
-                updateButtons();
-
-            }
-        }
 
         private void Stop()
         {
@@ -307,55 +276,54 @@ namespace Recorder
             if (this.decoder != null) { this.decoder.Stop(); }
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
+
+
+
+
+        private void button1_Click(object sender, EventArgs e)
         {
-            //Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
+            string userName = textBox1.Text.Trim();
 
-            //creates or overwrites file
-            Stream tmpFileStream = new FileStream(@".\tmp.wav", FileMode.Create);
-            this.encoder.Save(tmpFileStream);
-            AudioSignal templateSignal = AudioOperations.OpenAudioFile(@".\tmp.wav");
-            templateSignal = AudioOperations.RemoveSilence(templateSignal);
-            Sequence templateSequence = AudioOperations.ExtractFeatures(templateSignal);
-
-            double bestDistance = double.PositiveInfinity;
-            String nameOfMatch = "";
-         
-
-            foreach(String userDir in Directory.GetDirectories(@"..\..\Templates\"))
+            if (string.IsNullOrEmpty(userName))
             {
-                double distanceSum = 0;
-                String[] userAudios = Directory.GetFiles(userDir);
-                foreach(String seq in userAudios)
-                {
-                    FileManager<Sequence> fm = new FileManager<Sequence>(seq);
-                    Sequence currentSeq = fm.LoadFromFile()[0];
-                    distanceSum = distanceSum + DTW.DTWDistance(templateSequence, currentSeq);
-
-                }
-                double avgDistance = distanceSum / userAudios.Length;
-                if(avgDistance < bestDistance)
-                {
-                    bestDistance = avgDistance;
-                    String[] directory = userDir.Split('\\');
-                    nameOfMatch = directory[directory.Length - 1];
-                }
+                MessageBox.Show("Name cannot be empty!");
+                return;
             }
 
-            //return the name
+            // Load the signal and extract the sequence
+            AudioSignal signal = AudioOperations.OpenAudioFile(this.encoder.stream);
+            signal = AudioOperations.RemoveSilence(signal);
+            Sequence seq = AudioOperations.ExtractFeatures(signal);
 
-            matchedUserLabel.Text = "Best Match: " + nameOfMatch;
+            // Define the Templates folder path
+            string templatesFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Templates");
+            // Ensure the Templates folder exists
+            if (!Directory.Exists(templatesFolderPath))
+            {
+                Directory.CreateDirectory(templatesFolderPath);
+            }
 
+            // Define the user's folder path
+            string userFolderPath = Path.Combine(templatesFolderPath, userName);
 
+            // Check if the user's folder exists
+            if (!Directory.Exists(userFolderPath))
+            {
+                // Create the user's folder if it doesn't exist
+                Directory.CreateDirectory(userFolderPath);
+            }
             
-        }
+             int fileCount = Directory.GetFiles(userFolderPath, "*.txt").Length;
 
-        private void loadTrain1ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.ShowDialog();
+            // Define the file name for the new sequence
+            string sequenceFilePath = Path.Combine(userFolderPath, $"seq {fileCount}.txt");
 
-            var hobba = TestcaseLoader.LoadTestcase2Training(fileDialog.FileName);
+            // Use FileManager to save the sequence in JSON format
+            FileManager<Sequence> fileManager = new FileManager<Sequence>(sequenceFilePath);
+            fileManager.SaveToFile(new List<Sequence> { seq });
+
+            MessageBox.Show($"seq_{fileCount} is saved successfully!");
+
         }
 
     }
