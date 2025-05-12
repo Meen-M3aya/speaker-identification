@@ -289,7 +289,7 @@ namespace Recorder
                 MessageBox.Show("Name cannot be empty!");
                 return;
             }
-
+            
             // Load the signal and extract the sequence
             AudioSignal signal = AudioOperations.OpenAudioFile(this.encoder.stream);
             signal = AudioOperations.RemoveSilence(signal);
