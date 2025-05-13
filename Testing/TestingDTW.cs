@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using Recorder.MFCC;
 using Recorder;
+using Recorder.FileManager;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Concurrent;
+using System.IO;
 
 namespace Recorder.Testing
 {
@@ -19,166 +21,217 @@ namespace Recorder.Testing
 
         static public void sampling()
         {
-
             int WrongAnswers = 0;
-            List<User> TrainingData = new List<User>();
-            List<User> TestingData = new List<User>();
             List<UserSequence> TrainingUserSequences = new List<UserSequence>();
-            UserSequence u = new UserSequence();
-            Console.WriteLine("before user 1");
 
-            u.userName = "1";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\conspiracy_Crystal_US_English.wav")));
-            TrainingUserSequences.Add(u);
-            Console.WriteLine("user 1");
+            string basePath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                @"..\..\TEST CASES\[1] SAMPLE"));
 
-            u.userName = "2";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\conspiracy_Mike_US_English.wav")));
-            TrainingUserSequences.Add(u);
-            Console.WriteLine("user 2");
-
-            u.userName = "3";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\conspiracy_Rich_US_English.wav")));
-            TrainingUserSequences.Add(u);
-            Console.WriteLine("user 3");
-
-            u.userName = "1";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\plausible_Crystal_US_English.wav")));
-            TrainingUserSequences.Add(u);
-            u.userName = "2";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\plausible_Mike_US_English.wav")));
-            TrainingUserSequences.Add(u);
-            u.userName = "3";
-            u.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Training set\plausible_Rich_US_English.wav")));
-            TrainingUserSequences.Add(u);
+            string trainingPath = Path.Combine(basePath, "Training set");
+            string inputSamplePath = Path.Combine(basePath, "Input sample");
+            List<KeyValuePair<string, string>> trainingFiles = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("1", "conspiracy_Crystal_US_English.wav"),
+                new KeyValuePair<string, string>("2", "conspiracy_Mike_US_English.wav"),
+                new KeyValuePair<string, string>("3", "conspiracy_Rich_US_English.wav"),
+                new KeyValuePair<string, string>("1", "plausible_Crystal_US_English.wav"),
+                new KeyValuePair<string, string>("2", "plausible_Mike_US_English.wav"),
+                new KeyValuePair<string, string>("3", "plausible_Rich_US_English.wav")
+            };
 
 
+            Console.WriteLine("Starting training feature extraction...");
+            foreach (var pair in trainingFiles)
+            {
+                string userName = pair.Key;
+                string fileName = pair.Value;
+
+                var audioPath = Path.Combine(trainingPath, fileName);
+                var sequence = AudioOperations.ExtractFeatures(
+                                    AudioOperations.RemoveSilence(
+                                        AudioOperations.OpenAudioFile(audioPath)));
+
+                TrainingUserSequences.Add(new UserSequence
+                {
+                    userName = userName,
+                    sequence = sequence
+                });
+
+                Console.WriteLine($"Processed training file: {fileName}");
+            }
 
 
-            UserSequence testedUser = new UserSequence();
-            testedUser.userName = "3";
-            testedUser.sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(@"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[1] SAMPLE\Input sample\ItIsPlausible_Rich_US_English.wav")));
+            Console.WriteLine("Finished training. Starting testing...");
 
+            string testFileName = "ItIsPlausible_Rich_US_English.wav";
+            string testUser = "3";
+            string testFilePath = Path.Combine(inputSamplePath, testFileName);
+
+            UserSequence testedUser = new UserSequence
+            {
+                userName = testUser,
+                sequence = AudioOperations.ExtractFeatures(
+                               AudioOperations.RemoveSilence(
+                                   AudioOperations.OpenAudioFile(testFilePath)))
+            };
 
             double minimumCost = double.PositiveInfinity;
-            String matchedUserName = null;
-            for (int z = 0; z < TrainingUserSequences.Count; z++)
+            string matchedUserName = null;
+
+            foreach (var train in TrainingUserSequences)
             {
-                int n = TrainingUserSequences[z].sequence.Frames.Length, m = testedUser.sequence.Frames.Length;
+                int n = train.sequence.Frames.Length;
+                int m = testedUser.sequence.Frames.Length;
 
-                double[][] distanceMatrix = new double[n][];
-                for (int a = 0; a < n; a++)
-                    distanceMatrix[a] = new double[m];
+                double[][] distanceMatrix = DTW.ConstructDistanceMatrix(n, m, train.sequence, testedUser.sequence);
+                double result = DTW.CalculateDTWDistanceWithWindow(train.sequence, testedUser.sequence, distanceMatrix, 5);
 
-                distanceMatrix = DTW.ConstructDistanceMatrix(n, m, TrainingUserSequences[z].sequence, testedUser.sequence);
-
-                double result = DTW.CalculateDTWDistanceWithWindow(TrainingUserSequences[z].sequence, testedUser.sequence, distanceMatrix, 5);
-
-                if (minimumCost > result)
+                if (result < minimumCost)
                 {
                     minimumCost = result;
-                    matchedUserName = TrainingUserSequences[z].userName;
+                    matchedUserName = train.userName;
                 }
             }
 
             if (matchedUserName != null && matchedUserName != testedUser.userName)
                 WrongAnswers++;
 
-             
-            
-
-            Console.WriteLine("Number of Wrong Answers" + ": " + WrongAnswers);
-
+            Console.WriteLine("Number of Wrong Answers: " + WrongAnswers);
         }
 
 
 
-        static public void TestCase(String TrainingFileListName, String TestingFileListName, int testCaseNumber)
-        {
 
+        static public void TestCase(int testCaseNumber)
+        {
             int WrongAnswers = 0;
             List<User> TrainingData = new List<User>();
             List<User> TestingData = new List<User>();
             List<UserSequence> TrainingUserSequences = new List<UserSequence>();
+            List<UserSequence> TestingUserSequences = new List<UserSequence>();
 
-            Console.WriteLine("before loading training Data");
-            if (testCaseNumber == 1)
-                TrainingData = TestcaseLoader.LoadTestcase1Training(TrainingFileListName);
-            else if (testCaseNumber == 2)
-                TrainingData = TestcaseLoader.LoadTestcase2Training(TrainingFileListName);
 
-            Console.WriteLine("after loading Training Data");
-            ConcurrentBag<UserSequence> threadSafeSequences = new ConcurrentBag<UserSequence>();
+            string datasetFolder = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,$@"..\..\TEST CASES\[2] COMPLETE\Case1\Complete SpeakerID Dataset"));
 
-            Parallel.For(0, TrainingData.Count, i =>
+            string trainingFilePath = Path.Combine(datasetFolder, "TrainingList.txt");
+            string testingFilePath = Path.Combine(datasetFolder, "TestingList.txt");
+
+            string templatesFolderPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\tests"));
+            string basePath = Path.Combine(templatesFolderPath, testCaseNumber.ToString());
+            string trainingPath = Path.Combine(basePath, "training.json");
+            string testingPath = Path.Combine(basePath, "testing.json");
+            if(!Directory.Exists(basePath))
+                Directory.CreateDirectory(basePath);
+
+            var trainingFileManager = new FileManager<UserSequence>(trainingPath);
+            var testingFileManager = new FileManager<UserSequence>(testingPath);
+
+            // --- Load or Extract Training Features ---
+            if (File.Exists(trainingPath))
             {
-                for (int j = 0; j < TrainingData[i].UserTemplates.Count; j++)
-                {
-                    UserSequence userSequence = new UserSequence
-                    {
-                        userName = TrainingData[i].UserName
-                    };
-
-                    Console.WriteLine($"extracting i: {i}, j: {j}");
-
-                    userSequence.sequence = AudioOperations.ExtractFeatures(TrainingData[i].UserTemplates[j]);
-                    threadSafeSequences.Add(userSequence);  // Thread-safe add
-                }
-            });
-
-            // Now add all the results to the original list (outside the parallel block)
-            TrainingUserSequences.AddRange(threadSafeSequences);
-
-            Console.WriteLine("before loading testing Data");
-
-            if (testCaseNumber == 1)
-                TestingData = TestcaseLoader.LoadTestcase1Testing(TestingFileListName);
-            else if (testCaseNumber == 2)
-                TestingData = TestcaseLoader.LoadTestcase2Testing(TestingFileListName);
-            Console.WriteLine("after loading testing Data");
-
-
-
-            Parallel.For(0, TestingData.Count, i =>
+                Console.WriteLine("Loading pre-extracted training features...");
+                TrainingUserSequences = trainingFileManager.LoadFromFile();
+            }
+            else
             {
-                for (int j = 0; j < TestingData[i].UserTemplates.Count; j++)
+                Console.WriteLine("Extracting training features...");
+                TrainingData = LoadTrainingData(testCaseNumber, trainingFilePath);
+
+                ConcurrentBag<UserSequence> threadSafeSequences = new ConcurrentBag<UserSequence>();
+
+                Parallel.ForEach(TrainingData, user =>
                 {
-                    UserSequence testedUser = new UserSequence
+                    foreach (var template in user.UserTemplates)
                     {
-                        userName = TestingData[i].UserName,
-                        sequence = AudioOperations.ExtractFeatures(TestingData[i].UserTemplates[j])
-                    };
-
-                    double minimumCost = double.PositiveInfinity;
-                    string matchedUserName = null;
-
-                    for (int z = 0; z < TrainingUserSequences.Count; z++)
-                    {
-                        int n = TrainingUserSequences[z].sequence.Frames.Length;
-                        int m = testedUser.sequence.Frames.Length;
-
-                        double[][] distanceMatrix = DTW.ConstructDistanceMatrix(n, m, TrainingUserSequences[z].sequence, testedUser.sequence);
-                        double result = DTW.DTWDistance(TrainingUserSequences[z].sequence, testedUser.sequence, distanceMatrix);
-
-                        Console.WriteLine($"measuring i: {i}, j: {j}, result= {result}");
-
-                        if (minimumCost > result)
+                        var userSeq = new UserSequence
                         {
-                            minimumCost = result;
-                            matchedUserName = TrainingUserSequences[z].userName;
-                        }
+                            userName = user.UserName,
+                            sequence = AudioOperations.ExtractFeatures(template)
+                        };
+                        threadSafeSequences.Add(userSeq);
                     }
+                });
 
-                    if (matchedUserName != null && matchedUserName != testedUser.userName)
+                TrainingUserSequences.AddRange(threadSafeSequences);
+                trainingFileManager.SaveToFile(TrainingUserSequences);
+            }
+
+            // --- Load or Extract Testing Features ---
+            if (File.Exists(testingPath))
+            {
+                Console.WriteLine("Loading pre-extracted testing features...");
+                TestingUserSequences = testingFileManager.LoadFromFile();
+            }
+            else
+            {
+                Console.WriteLine("Extracting testing features...");
+                TestingData = LoadTestingData(testCaseNumber, testingFilePath);
+
+                ConcurrentBag<UserSequence> threadSafeSequences = new ConcurrentBag<UserSequence>();
+
+                Parallel.ForEach(TestingData, user =>
+                {
+                    foreach (var template in user.UserTemplates)
                     {
-                        Interlocked.Increment(ref WrongAnswers);  // Safe increment for shared variable
+                        var userSeq = new UserSequence
+                        {
+                            userName = user.UserName,
+                            sequence = AudioOperations.ExtractFeatures(template)
+                        };
+                        threadSafeSequences.Add(userSeq);
                     }
+                });
+
+                TestingUserSequences.AddRange(threadSafeSequences);
+                testingFileManager.SaveToFile(TestingUserSequences);
+            }
+
+
+            Console.WriteLine("begin classification...");
+            // --- Classification ---
+            Parallel.ForEach(TestingUserSequences, testedUser =>
+            {
+                double minCost = double.PositiveInfinity;
+                string matchedUserName = null;
+
+                foreach (var trainSeq in TrainingUserSequences)
+                {
+                    double[][] matrix = DTW.ConstructDistanceMatrix(
+                        trainSeq.sequence.Frames.Length,
+                        testedUser.sequence.Frames.Length,
+                        trainSeq.sequence, testedUser.sequence);
+
+                    double result = DTW.DTWDistance(trainSeq.sequence, testedUser.sequence, matrix);
+
+                    if (result < minCost)
+                    {
+                        minCost = result;
+                        matchedUserName = trainSeq.userName;
+                    }
+                }
+
+                if (matchedUserName != null && matchedUserName != testedUser.userName)
+                {
+                    Interlocked.Increment(ref WrongAnswers);
                 }
             });
 
-
-            Console.WriteLine("Number of Wrong Answers for Testcase " + testCaseNumber + ": " + WrongAnswers);
-
+            Console.WriteLine($"Number of Wrong Answers for Testcase {testCaseNumber}: {WrongAnswers}");
         }
+
+        private static List<User> LoadTrainingData(int testCase, string path)
+        {
+            return testCase == 1 ? TestcaseLoader.LoadTestcase1Training(path) :
+                   testCase == 2 ? TestcaseLoader.LoadTestcase2Training(path) :
+                   throw new ArgumentException("Unsupported test case");
+        }
+
+        private static List<User> LoadTestingData(int testCase, string path)
+        {
+            return testCase == 1 ? TestcaseLoader.LoadTestcase1Testing(path) :
+                   testCase == 2 ? TestcaseLoader.LoadTestcase2Testing(path) :
+                   throw new ArgumentException("Unsupported test case");
+        }
+
     }
 }

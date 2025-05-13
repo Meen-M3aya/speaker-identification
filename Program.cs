@@ -9,12 +9,8 @@ namespace Recorder
         [STAThread]
         static void Main()
         {
-            //string trainingFile = @"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[2] COMPLETE\Case1\Complete SpeakerID Dataset\TrainingList.txt";
-            //string testingFile = @"E:\[2] SPEAKER IDENTIFICATION-20250504T141248Z-1-001\[2] SPEAKER IDENTIFICATION\TEST CASES\[2] COMPLETE\Case1\Complete SpeakerID Dataset\TestingList.txt";
-            //int testCaseNumber = 1;
-
-            //TestingDTW.TestCase(trainingFile, testingFile, testCaseNumber);
-            //TestingDTW.sampling();
+            //TestingDTW.TestCase(1);
+            TestingDTW.sampling();
 
             if (Environment.OSVersion.Version.Major >= 6)
                 SetProcessDPIAware();
