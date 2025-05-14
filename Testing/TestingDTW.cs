@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Diagnostics;
 
 namespace Recorder.Testing
 {
@@ -102,19 +103,41 @@ namespace Recorder.Testing
 
 
 
-        static public void TestCase(int testCaseNumber)
+        static public void TestCase(int testCaseNumber, int pruningWidth)
         {
-            int WrongAnswers = 0;
             List<User> TrainingData = new List<User>();
             List<User> TestingData = new List<User>();
             List<UserSequence> TrainingUserSequences = new List<UserSequence>();
             List<UserSequence> TestingUserSequences = new List<UserSequence>();
+            Stopwatch stopWatch = new Stopwatch();
 
 
-            string datasetFolder = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,$@"..\..\TEST CASES\[2] COMPLETE\Case1\Complete SpeakerID Dataset"));
 
-            string trainingFilePath = Path.Combine(datasetFolder, "TrainingList.txt");
-            string testingFilePath = Path.Combine(datasetFolder, "TestingList.txt");
+
+            string datasetFolder = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,$@"..\..\TEST CASES\[2] COMPLETE\Case{testCaseNumber}"));
+            string trainingFilePath="";
+            string testingFilePath="";
+            if (testCaseNumber == 1)
+            {
+                datasetFolder = Path.Combine(datasetFolder, "Small samples");
+                trainingFilePath = Path.Combine(datasetFolder, "TrainingList.txt");
+                testingFilePath = Path.Combine(datasetFolder, "TestingList5Samples.txt");
+            }
+            if (testCaseNumber == 2)
+            {
+                datasetFolder = Path.Combine(datasetFolder, "Medium samples");
+                trainingFilePath = Path.Combine(datasetFolder, "TrainingList5Samples.txt");
+                testingFilePath = Path.Combine(datasetFolder, "TestingList1Sample.txt");
+            }
+            if (testCaseNumber == 3)
+            {
+                datasetFolder = Path.Combine(datasetFolder, "Large samples");
+                trainingFilePath = Path.Combine(datasetFolder, "TrainingList1Sample.txt");
+                testingFilePath = Path.Combine(datasetFolder, "TestingList.txt");
+            }
+
+
+            
 
             string templatesFolderPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\tests"));
             string basePath = Path.Combine(templatesFolderPath, testCaseNumber.ToString());
@@ -135,10 +158,10 @@ namespace Recorder.Testing
             else
             {
                 Console.WriteLine("Extracting training features...");
-                TrainingData = LoadTrainingData(testCaseNumber, trainingFilePath);
+                TrainingData = LoadTrainingData(1, trainingFilePath);
 
                 ConcurrentBag<UserSequence> threadSafeSequences = new ConcurrentBag<UserSequence>();
-
+                stopWatch.Start();
                 Parallel.ForEach(TrainingData, user =>
                 {
                     foreach (var template in user.UserTemplates)
@@ -151,6 +174,11 @@ namespace Recorder.Testing
                         threadSafeSequences.Add(userSeq);
                     }
                 });
+                stopWatch.Stop();
+                TimeSpan extractdur = stopWatch.Elapsed;
+                String trainextract = $"Training Features extracted in {extractdur:hh\\:mm\\:ss} (hours:minutes:seconds)";
+                Console.WriteLine(trainextract);
+                stopWatch.Reset();
 
                 TrainingUserSequences.AddRange(threadSafeSequences);
                 trainingFileManager.SaveToFile(TrainingUserSequences);
@@ -165,10 +193,10 @@ namespace Recorder.Testing
             else
             {
                 Console.WriteLine("Extracting testing features...");
-                TestingData = LoadTestingData(testCaseNumber, testingFilePath);
+                TestingData = LoadTestingData(1, testingFilePath);
 
                 ConcurrentBag<UserSequence> threadSafeSequences = new ConcurrentBag<UserSequence>();
-
+                stopWatch.Start();
                 Parallel.ForEach(TestingData, user =>
                 {
                     foreach (var template in user.UserTemplates)
@@ -181,6 +209,11 @@ namespace Recorder.Testing
                         threadSafeSequences.Add(userSeq);
                     }
                 });
+                stopWatch.Stop();
+                TimeSpan extractdur = stopWatch.Elapsed;
+                String testextract = $"Training Features extracted in {extractdur:hh\\:mm\\:ss} (hours:minutes:seconds)";
+                Console.WriteLine(testextract);
+                stopWatch.Reset();
 
                 TestingUserSequences.AddRange(threadSafeSequences);
                 testingFileManager.SaveToFile(TestingUserSequences);
@@ -189,6 +222,10 @@ namespace Recorder.Testing
 
             Console.WriteLine("begin classification...");
             // --- Classification ---
+            int totalTests = TestingUserSequences.Count;
+            int correctMatches = 0;
+            stopWatch.Start();
+
             Parallel.ForEach(TestingUserSequences, testedUser =>
             {
                 double minCost = double.PositiveInfinity;
@@ -197,11 +234,16 @@ namespace Recorder.Testing
                 foreach (var trainSeq in TrainingUserSequences)
                 {
                     double[][] matrix = DTW.ConstructDistanceMatrix(
-                        trainSeq.sequence.Frames.Length,
                         testedUser.sequence.Frames.Length,
-                        trainSeq.sequence, testedUser.sequence);
+                        trainSeq.sequence.Frames.Length,
+                        testedUser.sequence, trainSeq.sequence);
 
-                    double result = DTW.DTWDistance(trainSeq.sequence, testedUser.sequence, matrix);
+                    double result= double.PositiveInfinity;
+
+                    if (pruningWidth == 0)
+                        result = DTW.DTWDistance(testedUser.sequence, trainSeq.sequence, matrix);
+                    else
+                        result = DTW.CalculateDTWDistanceWithWindow(testedUser.sequence, trainSeq.sequence, matrix, pruningWidth);
 
                     if (result < minCost)
                     {
@@ -210,13 +252,20 @@ namespace Recorder.Testing
                     }
                 }
 
-                if (matchedUserName != null && matchedUserName != testedUser.userName)
+                if (matchedUserName == testedUser.userName)
                 {
-                    Interlocked.Increment(ref WrongAnswers);
+                    Interlocked.Increment(ref correctMatches);
                 }
             });
+            stopWatch.Stop();
+            TimeSpan testDuration = stopWatch.Elapsed;
+            String testDurationOutput = $"Test Case {testCaseNumber} executed in {testDuration:hh\\:mm\\:ss} (hours:minutes:seconds)";
+            Console.WriteLine(testDurationOutput);
 
-            Console.WriteLine($"Number of Wrong Answers for Testcase {testCaseNumber}: {WrongAnswers}");
+
+            double accuracy = (double)correctMatches / totalTests * 100;
+            Console.WriteLine($"Accuracy for Testcase {testCaseNumber}: {accuracy:F2}%");
+
         }
 
         private static List<User> LoadTrainingData(int testCase, string path)
