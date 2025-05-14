@@ -233,17 +233,17 @@ namespace Recorder.Testing
 
                 foreach (var trainSeq in TrainingUserSequences)
                 {
-                    double[][] matrix = DTW.ConstructDistanceMatrix(
+                   /* double[][] matrix = DTW.ConstructDistanceMatrix(
                         testedUser.sequence.Frames.Length,
                         trainSeq.sequence.Frames.Length,
-                        testedUser.sequence, trainSeq.sequence);
+                        testedUser.sequence, trainSeq.sequence);*/
 
                     double result= double.PositiveInfinity;
 
                     if (pruningWidth == 0)
-                        result = DTW.DTWDistance(testedUser.sequence, trainSeq.sequence, matrix);
+                        result = DTW.DTWDistance(testedUser.sequence, trainSeq.sequence);
                     else
-                        result = DTW.CalculateDTWDistanceWithWindow(testedUser.sequence, trainSeq.sequence, matrix, pruningWidth);
+                        result = DTW.CalculateDTWDistanceWithWindow(testedUser.sequence, trainSeq.sequence, pruningWidth);
 
                     if (result < minCost)
                     {
