@@ -11,8 +11,8 @@ namespace Recorder
         {
             //TestingDTW.TestCase(1, 23);
             //TestingDTW.TestCase(1, 0);
-            //TestingDTW.TestCase(2, 55);
-            TestingDTW.TestCase(3, 11);
+            TestingDTW.TestCase(2, 55);
+            //TestingDTW.TestCase(3, 11);
 
 
             if (Environment.OSVersion.Version.Major >= 6)
