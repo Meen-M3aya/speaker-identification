@@ -53,7 +53,7 @@ namespace Recorder
             return dp[n][m];
         }
 
-        static public double CalculateDTWDistanceWithWindow(Sequence a, Sequence b,int width)
+        static public double CalculateDTWDistanceWithWindow(Sequence a, Sequence b, int width)
         {
             int n = a.Frames.Length, m = b.Frames.Length;
             double[][] dp = new double[2][];
@@ -65,15 +65,17 @@ namespace Recorder
                     dp[i][j] = double.PositiveInfinity;
 
             dp[0][0] = 0;
+            width = Math.Max(width, Math.Abs(n - m));
             for (int i = 1; i <= n; i++)
             {
-                dp[1][0] = double.PositiveInfinity;
+                for (int j = 0; j <= Math.Min(m, i + width); j++)
+                    dp[1][j] = double.PositiveInfinity;
                 for (int j = Math.Max(1, i - width); j <= Math.Min(m, i + width); j++)
                 {
                     double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
                     double shrinked = dp[0][j - 1],
                            stretched = (j >= 2 ? dp[0][j - 2] : double.PositiveInfinity),
-                           next = dp[1][j - 1];
+                           next = dp[0][j];
                     dp[1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
                 }
                 var tmp = dp[0];
@@ -137,13 +139,14 @@ namespace Recorder
             dp[0][0] = 0;
             for (int i = 1; i <= n; i++)
             {
-                dp[1][0] = double.PositiveInfinity;
+                for (int j = 0; j <= m; j++)
+                    dp[1][j] = double.PositiveInfinity;
                 for (int j = 1; j <= m; j++)
                 {
                     double distancePrev = EuclideanDistance(a.Frames[i-1].Features, b.Frames[j-1].Features);
                     double shrinked = dp[0][j - 1], 
                            stretched = (j >= 2 ? dp[0][j - 2] : double.PositiveInfinity),
-                           next = dp[1][j - 1];
+                           next = dp[0][j];
                     dp[1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
                 }
                 var tmp = dp[0];
