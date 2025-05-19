@@ -84,8 +84,7 @@ namespace Recorder.Testing
                 int n = train.sequence.Frames.Length;
                 int m = testedUser.sequence.Frames.Length;
 
-                double[][] distanceMatrix = DTW.ConstructDistanceMatrix(n, m, train.sequence, testedUser.sequence);
-                double result = DTW.CalculateDTWDistanceWithWindow(train.sequence, testedUser.sequence, distanceMatrix, 5);
+                double result = DTW.CalculateDTWDistanceWithWindow(train.sequence, testedUser.sequence, 5);
 
                 if (result < minimumCost)
                 {
@@ -160,7 +159,7 @@ namespace Recorder.Testing
                 Console.WriteLine("Extracting training features...");
                 TrainingData = LoadTrainingData(1, trainingFilePath);
 
-                ConcurrentBag<UserSequence> threadSafeSequences = new ConcurrentBag<UserSequence>();
+                ConcurrentBag<UserSequence> threadSafeSequencesLocal = new ConcurrentBag<UserSequence>();
                 stopWatch.Start();
                 Parallel.ForEach(TrainingData, user =>
                 {
@@ -171,54 +170,44 @@ namespace Recorder.Testing
                             userName = user.UserName,
                             sequence = AudioOperations.ExtractFeatures(template)
                         };
-                        threadSafeSequences.Add(userSeq);
+                        threadSafeSequencesLocal.Add(userSeq);
                     }
                 });
                 stopWatch.Stop();
-                TimeSpan extractdur = stopWatch.Elapsed;
-                String trainextract = $"Training Features extracted in {extractdur:hh\\:mm\\:ss} (hours:minutes:seconds)";
+                TimeSpan extractdurLocal = stopWatch.Elapsed;
+                String trainextract = $"Training Features extracted in {extractdurLocal:hh\\:mm\\:ss} (hours:minutes:seconds)";
                 Console.WriteLine(trainextract);
                 stopWatch.Reset();
 
-                TrainingUserSequences.AddRange(threadSafeSequences);
+                TrainingUserSequences.AddRange(threadSafeSequencesLocal);
                 trainingFileManager.SaveToFile(TrainingUserSequences);
             }
 
-            // --- Load or Extract Testing Features ---
-            if (File.Exists(testingPath))
-            {
-                Console.WriteLine("Loading pre-extracted testing features...");
-                TestingUserSequences = testingFileManager.LoadFromFile();
-            }
-            else
-            {
-                Console.WriteLine("Extracting testing features...");
-                TestingData = LoadTestingData(1, testingFilePath);
+            Console.WriteLine("Extracting testing features...");
+            TestingData = LoadTestingData(1, testingFilePath);
 
-                ConcurrentBag<UserSequence> threadSafeSequences = new ConcurrentBag<UserSequence>();
-                stopWatch.Start();
-                Parallel.ForEach(TestingData, user =>
+            ConcurrentBag<UserSequence> threadSafeSequences = new ConcurrentBag<UserSequence>();
+            stopWatch.Start();
+            Parallel.ForEach(TestingData, user =>
+            {
+                foreach (var template in user.UserTemplates)
                 {
-                    foreach (var template in user.UserTemplates)
+                    var userSeq = new UserSequence
                     {
-                        var userSeq = new UserSequence
-                        {
-                            userName = user.UserName,
-                            sequence = AudioOperations.ExtractFeatures(template)
-                        };
-                        threadSafeSequences.Add(userSeq);
-                    }
-                });
-                stopWatch.Stop();
-                TimeSpan extractdur = stopWatch.Elapsed;
-                String testextract = $"Training Features extracted in {extractdur:hh\\:mm\\:ss} (hours:minutes:seconds)";
-                Console.WriteLine(testextract);
-                stopWatch.Reset();
+                        userName = user.UserName,
+                        sequence = AudioOperations.ExtractFeatures(template)
+                    };
+                    threadSafeSequences.Add(userSeq);
+                }
+            });
+            stopWatch.Stop();
+            TimeSpan extractdur = stopWatch.Elapsed;
+            String testextract = $"Training Features extracted in {extractdur:hh\\:mm\\:ss} (hours:minutes:seconds)";
+            Console.WriteLine(testextract);
+            stopWatch.Reset();
 
-                TestingUserSequences.AddRange(threadSafeSequences);
-                testingFileManager.SaveToFile(TestingUserSequences);
-            }
-
+            TestingUserSequences.AddRange(threadSafeSequences);
+            testingFileManager.SaveToFile(TestingUserSequences);
 
             Console.WriteLine("begin classification...");
             // --- Classification ---

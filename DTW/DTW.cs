@@ -29,29 +29,28 @@ namespace Recorder
             return Math.Sqrt(res);
         }
 
+        //static public double CalculateDTWDistanceWithWindow(Sequence a, Sequence b, double[][] distanceMatrix, int width)
+        //{
+        //    int n = a.Frames.Length, m = b.Frames.Length;
+        //    double[][] dp = new double[n + 1][];
+        //    for (int i = 0; i <= n; i++)
+        //        dp[i] = new double[m + 1];
 
-        static public double CalculateDTWDistanceWithWindow(Sequence a, Sequence b, double[][] distanceMatrix, int width)
-        {
-            int n = a.Frames.Length, m = b.Frames.Length;
-            double[][] dp = new double[n + 1][];
-            for (int i = 0; i <= n; i++)
-                dp[i] = new double[m + 1];
+        //    for (int i = 0; i <= n; i++)
+        //        for (int j = 0; j <= m; j++)
+        //            dp[i][j] = double.PositiveInfinity;
 
-            for (int i = 0; i <= n; i++)
-                for (int j = 0; j <= m; j++)
-                    dp[i][j] = double.PositiveInfinity;
+        //    dp[0][0] = 0;
+        //    for (int i = 1; i <= n; i++)
+        //        for (int j = Math.Max(1, i - width); j <= Math.Min(m, i + width); j++)
+        //        {
+        //            double distancePrev = distanceMatrix[i - 1][j - 1];
+        //            double shrinked = dp[i][j - 1], stretched = dp[i - 1][j], next = dp[i - 1][j - 1];
+        //            dp[i][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
+        //        }
 
-            dp[0][0] = 0;
-            for (int i = 1; i <= n; i++)
-                for (int j = Math.Max(1, i - width); j <= Math.Min(m, i + width); j++)
-                {
-                    double distancePrev = distanceMatrix[i - 1][j - 1];
-                    double shrinked = dp[i][j - 1], stretched = dp[i - 1][j], next = dp[i - 1][j - 1];
-                    dp[i][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
-                }
-
-            return dp[n][m];
-        }
+        //    return dp[n][m];
+        //}
 
         static public double CalculateDTWDistanceWithWindow(Sequence a, Sequence b, int width)
         {
@@ -73,8 +72,8 @@ namespace Recorder
                 for (int j = Math.Max(1, i - width); j <= Math.Min(m, i + width); j++)
                 {
                     double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
-                    double shrinked = dp[0][j - 1],
-                           stretched = (j >= 2 ? dp[0][j - 2] : double.PositiveInfinity),
+                    double stretched = dp[0][j - 1],
+                           shrinked = (j >= 2 ? dp[0][j - 2] : double.PositiveInfinity),
                            next = dp[0][j];
                     dp[1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
                 }
@@ -98,28 +97,28 @@ namespace Recorder
             return distanceMatrix;
         }
 
-        static public double DTWDistance(Sequence a, Sequence b, double[][] distanceMatrix)
-        {
-            int n = a.Frames.Length, m = b.Frames.Length;
-            double[][] dp = new double[n + 1][];
-            for (int i = 0; i <= n; i++)
-                dp[i] = new double[m + 1];
+        //static public double DTWDistance(Sequence a, Sequence b, double[][] distanceMatrix)
+        //{
+        //    int n = a.Frames.Length, m = b.Frames.Length;
+        //    double[][] dp = new double[n + 1][];
+        //    for (int i = 0; i <= n; i++)
+        //        dp[i] = new double[m + 1];
 
-            for (int i = 0; i <= n; i++)
-                for (int j = 0; j <= m; j++)
-                    dp[i][j] = double.PositiveInfinity;
+        //    for (int i = 0; i <= n; i++)
+        //        for (int j = 0; j <= m; j++)
+        //            dp[i][j] = double.PositiveInfinity;
 
-            dp[0][0] = 0;
-            for (int i = 1; i <= n; i++)
-                for (int j = 1; j <= m; j++)
-                {
-                    double distancePrev = distanceMatrix[i - 1][j - 1];
-                    double shrinked = dp[i][j - 1], stretched = dp[i - 1][j], next = dp[i - 1][j - 1];
-                    dp[i][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
-                }
+        //    dp[0][0] = 0;
+        //    for (int i = 1; i <= n; i++)
+        //        for (int j = 1; j <= m; j++)
+        //        {
+        //            double distancePrev = distanceMatrix[i - 1][j - 1];
+        //            double shrinked = dp[i][j - 1], stretched = dp[i - 1][j], next = dp[i - 1][j - 1];
+        //            dp[i][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
+        //        }
 
-            return dp[n][m];
-        }
+        //    return dp[n][m];
+        //}
 
         //overloaded function that doesn't require separate initlization of distanceMatrix
         static public double DTWDistance(Sequence a, Sequence b)
@@ -144,8 +143,8 @@ namespace Recorder
                 for (int j = 1; j <= m; j++)
                 {
                     double distancePrev = EuclideanDistance(a.Frames[i-1].Features, b.Frames[j-1].Features);
-                    double shrinked = dp[0][j - 1], 
-                           stretched = (j >= 2 ? dp[0][j - 2] : double.PositiveInfinity),
+                    double stretched = dp[0][j - 1], 
+                           shrinked = (j >= 2 ? dp[0][j - 2] : double.PositiveInfinity),
                            next = dp[0][j];
                     dp[1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
                 }
