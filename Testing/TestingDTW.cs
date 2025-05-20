@@ -20,7 +20,7 @@ namespace Recorder.Testing
     public static class TestingDTW
     {
 
-        static public void sampling()
+        static public void sampling(int width)
         {
             int WrongAnswers = 0;
             List<UserSequence> TrainingUserSequences = new List<UserSequence>();
@@ -49,8 +49,7 @@ namespace Recorder.Testing
 
                 var audioPath = Path.Combine(trainingPath, fileName);
                 var sequence = AudioOperations.ExtractFeatures(
-                                    AudioOperations.RemoveSilence(
-                                        AudioOperations.OpenAudioFile(audioPath)));
+                                        AudioOperations.OpenAudioFile(audioPath));
 
                 TrainingUserSequences.Add(new UserSequence
                 {
@@ -72,8 +71,7 @@ namespace Recorder.Testing
             {
                 userName = testUser,
                 sequence = AudioOperations.ExtractFeatures(
-                               AudioOperations.RemoveSilence(
-                                   AudioOperations.OpenAudioFile(testFilePath)))
+                                   AudioOperations.OpenAudioFile(testFilePath))
             };
 
             double minimumCost = double.PositiveInfinity;
@@ -84,7 +82,12 @@ namespace Recorder.Testing
                 int n = train.sequence.Frames.Length;
                 int m = testedUser.sequence.Frames.Length;
 
-                double result = DTW.CalculateDTWDistanceWithWindow(train.sequence, testedUser.sequence, 5);
+                double result;
+
+                if (width == 0)
+                    result = DTW.DTWDistance(testedUser.sequence, train.sequence);
+                else
+                    result = DTW.CalculateDTWDistanceWithWindow(testedUser.sequence, train.sequence, width);
 
                 if (result < minimumCost)
                 {
@@ -96,7 +99,7 @@ namespace Recorder.Testing
             if (matchedUserName != null && matchedUserName != testedUser.userName)
                 WrongAnswers++;
 
-            Console.WriteLine("Number of Wrong Answers: " + WrongAnswers);
+            Console.WriteLine("Minimum distance " + minimumCost);
         }
 
 
