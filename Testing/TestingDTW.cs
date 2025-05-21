@@ -20,6 +20,77 @@ namespace Recorder.Testing
     public static class TestingDTW
     {
 
+        static public void run()
+        {
+            while (true)
+            {
+                Console.WriteLine("Select the type of test to run:");
+                Console.WriteLine("1. Sampling Test");
+                Console.WriteLine("2. Pruning Test");
+                Console.WriteLine("3. Complete Test Case");
+                Console.WriteLine("4. exit");
+                Console.Write("Enter choice (1/2/3): ");
+
+                string choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        Console.Write("Enter width (0 for no pruning): ");
+                        int widthSampling;
+                        while (!int.TryParse(Console.ReadLine(), out widthSampling))
+                            Console.Write("Invalid input. Please enter an integer: ");
+                        sampling(widthSampling);
+                        Console.WriteLine();
+                        Console.WriteLine();
+                        break;
+
+                    case "2":
+                        Console.Write("Enter durations (1 for 1-min, 2 for 4-min): ");
+                        int durations;
+                        while (!int.TryParse(Console.ReadLine(), out durations) || (durations != 1 && durations != 2))
+                            Console.Write("Invalid input. Enter 1 or 2: ");
+
+                        
+                        Console.Write("Enter width (0 for no pruning): ");
+                        int widthPruning;
+                        while (!int.TryParse(Console.ReadLine(), out widthPruning))
+                            Console.Write("Invalid input. Please enter an integer: ");
+
+                        pruningTest(durations, widthPruning);
+                        Console.WriteLine();
+                        Console.WriteLine();
+                        break;
+
+                    case "3":
+                        Console.Write("Enter test case number (1, 2, or 3): ");
+                        int testCaseNumber;
+                        while (!int.TryParse(Console.ReadLine(), out testCaseNumber) || testCaseNumber < 1 || testCaseNumber > 3)
+                            Console.Write("Invalid input. Enter 1, 2, or 3: ");
+
+                        Console.Write("Enter pruning width (0 for no pruning): ");
+                        int widthComplete;
+                        while (!int.TryParse(Console.ReadLine(), out widthComplete))
+                            Console.Write("Invalid input. Please enter an integer: ");
+
+                        TestCase(testCaseNumber, widthComplete);
+                        Console.WriteLine();
+                        Console.WriteLine();
+                        break;
+
+                    case "4":
+                        Console.WriteLine("Exiting the program.");
+                        return;
+
+                    default:
+                        Console.WriteLine("Invalid choice. Please restart and choose 1, 2, or 3.");
+                        break;
+                }
+            }
+            
+        }
+
+
         static public void sampling(int width)
         {
             int WrongAnswers = 0;
@@ -40,7 +111,8 @@ namespace Recorder.Testing
                 new KeyValuePair<string, string>("3", "plausible_Rich_US_English.wav")
             };
 
-
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
             Console.WriteLine("Starting training feature extraction...");
             foreach (var pair in trainingFiles)
             {
@@ -98,11 +170,71 @@ namespace Recorder.Testing
 
             if (matchedUserName != null && matchedUserName != testedUser.userName)
                 WrongAnswers++;
-
+            stopWatch.Stop();
+            TimeSpan testDuration = stopWatch.Elapsed;
+            String testDurationOutput = $"executed in {testDuration:hh\\:mm\\:ss} (hours:minutes:seconds)";
+            Console.WriteLine(testDurationOutput);
             Console.WriteLine("Minimum distance " + minimumCost);
         }
 
+        static public void pruningTest(int duration, int width)
+        {
+            string datasetFolder = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\TEST CASES\[1] SAMPLE\Pruning Test"));
+            string trainingFilePath = "";
+            string testingFilePath = "";
+            if (duration == 1)
+            {
+                string trainingfolderPath = Path.Combine(datasetFolder, "1 min");
+                trainingFilePath = Path.Combine(trainingfolderPath, "[Template] Big-Oh Notation (1 min).wav");
+            }
+            else
+            {
+                string trainingfolderPath = Path.Combine(datasetFolder, "4 min");
+                trainingFilePath = Path.Combine(trainingfolderPath, "[Template] Big-Oh Notation (4 min).wav");
+            }
 
+            if (duration == 1)
+            {
+                string testingFolderPath = Path.Combine(datasetFolder, "1 min");
+                testingFilePath = Path.Combine(testingFolderPath, "[Input] Why Study Algorithms - (1 min).wav");
+            }
+            else
+            {
+                string testingFolderPath = Path.Combine(datasetFolder, "4 min");
+                testingFilePath = Path.Combine(testingFolderPath, "[Input] Why Study Algorithms - (4 min).wav");
+            }
+
+            UserSequence trainingseq = new UserSequence
+            {
+                userName = "1",
+                sequence = AudioOperations.ExtractFeatures( AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(trainingFilePath)))
+            };
+            UserSequence testingseq = new UserSequence
+            {
+                userName = "1",
+                sequence = AudioOperations.ExtractFeatures(AudioOperations.RemoveSilence(AudioOperations.OpenAudioFile(testingFilePath)))
+            };
+            int n = trainingseq.sequence.Frames.Length;
+            int m = testingseq.sequence.Frames.Length;
+
+            double result;
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (width == 0)
+                result = DTW.DTWDistance(testingseq.sequence, trainingseq.sequence);
+            else
+                result = DTW.CalculateDTWDistanceWithWindow(testingseq.sequence, trainingseq.sequence, width);
+
+
+            stopwatch.Stop();
+            long testDurationMs = stopwatch.ElapsedMilliseconds;
+            string testDurationOutput = $"Executed in {testDurationMs} ms";
+            Console.WriteLine(testDurationOutput);
+            Console.WriteLine($"distance: {result}");
+
+        }
 
 
         static public void TestCase(int testCaseNumber, int pruningWidth)
