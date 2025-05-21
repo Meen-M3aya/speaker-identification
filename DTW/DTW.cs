@@ -57,29 +57,37 @@ namespace Recorder
         {
             int n = a.Frames.Length, m = b.Frames.Length;
             double[][] dp = new double[2][];
+            int[][] lastUsed = new int[2][];
             for (int i = 0; i < 2; i++)
+            {
                 dp[i] = new double[m + 1];
-
-            for (int i = 0; i < 2; i++)
+                lastUsed[i] = new int[m + 1];
                 for (int j = 0; j <= m; j++)
-                    dp[i][j] = double.PositiveInfinity;
+                {
+                    lastUsed[i][j] = -1;
+                }
+            }
 
             dp[0][0] = 0;
+            lastUsed[0][0] = 0;
             width = Math.Max(width, 2 * Math.Abs(n - m));
             for (int i = 1; i <= n; i++)
             {
-                for (int j = 0; j <= m; j++)
-                    dp[i & 1][j] = double.PositiveInfinity;
+
                 for (int j = Math.Max(1, i - width / 2); j <= Math.Min(m, i + width / 2); j++)
                 {
                     double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
-                    double next = dp[(i - 1) & 1][j - 1],
-                           shrinked = (j >= 2 ? dp[(i - 1) & 1][j - 2] : double.PositiveInfinity),
-                           stretched = dp[(i - 1) & 1][j];
+                    double next = (lastUsed[(i - 1) & 1][j - 1] == i - 1) ?
+                        dp[(i - 1) & 1][j - 1] : double.PositiveInfinity,
+                           shrinked = (j >= 2 && lastUsed[(i - 1) & 1][j - 2] == i - 1) ?
+                        dp[(i - 1) & 1][j - 2] : double.PositiveInfinity,
+                           stretched = (lastUsed[(i - 1) & 1][j] == i - 1) ?
+                        dp[(i - 1) & 1][j] : double.PositiveInfinity;
                     dp[i & 1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
+                    lastUsed[i & 1][j] = i;
                 }
             }
-            return dp[n & 1][m];
+            return (lastUsed[n & 1][m] == n) ? dp[n & 1][m] : double.PositiveInfinity;
         }
 
         static public bool checkPartialPath(double frameCost, double width, double pathCost)
@@ -121,7 +129,7 @@ namespace Recorder
                 List<int> newPrunedIndices = new List<int>(); 
                 foreach (int j in prunedIndices)
                 {
-                    bool ret = checkPartialPath(bestCost, bestCost * 0.05, dp[i & 1][j]);
+                    bool ret = checkPartialPath(bestCost, width, dp[i & 1][j]);
                     if (!ret)
                     {
                         newPrunedIndices.Add(j);

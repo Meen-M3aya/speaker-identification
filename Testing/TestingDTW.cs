@@ -159,7 +159,7 @@ namespace Recorder.Testing
                 if (width == 0)
                     result = DTW.DTWDistance(testedUser.sequence, train.sequence);
                 else
-                    result = DTW.CalculateDTWDistanceWithBeam(testedUser.sequence, train.sequence, width);
+                    result = DTW.CalculateDTWDistanceWithWindow(testedUser.sequence, train.sequence, width);
 
                 if (result < minimumCost)
                 {
