@@ -73,9 +73,9 @@ namespace Recorder
                 for (int j = Math.Max(1, i - width / 2); j <= Math.Min(m, i + width / 2); j++)
                 {
                     double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
-                    double stretched = dp[(i - 1) & 1][j - 1],
+                    double next = dp[(i - 1) & 1][j - 1],
                            shrinked = (j >= 2 ? dp[(i - 1) & 1][j - 2] : double.PositiveInfinity),
-                           next = dp[(i - 1) & 1][j];
+                           stretched = dp[(i - 1) & 1][j];
                     dp[i & 1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
                 }
             }
@@ -103,13 +103,19 @@ namespace Recorder
             {
                 for (int j = 0; j <= m; j++)
                     dp[i & 1][j] = double.PositiveInfinity;
+                double bestCost = double.PositiveInfinity;
                 for (int j = 1; j <= m; j++)
                 {
                     double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
-                    double stretched = dp[(i - 1) & 1][j - 1],
+                    double next = dp[(i - 1) & 1][j - 1],
                            shrinked = (j >= 2 ? dp[(i - 1) & 1][j - 2] : double.PositiveInfinity),
-                           next = dp[(i - 1) & 1][j];
+                           stretched = dp[(i - 1) & 1][j];
                     dp[i & 1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
+                    bestCost = Math.Min(bestCost, dp[i & 1][j]);
+                }
+                for (int j = 0; j <= m; j++)
+                {
+                    bestCost = checkPartialPath(bestCost, bestCost*0.1, dp[i & 1][j]);
                 }
             }
             return dp[n & 1][m];
@@ -173,9 +179,9 @@ namespace Recorder
                 for (int j = 1; j <= m; j++)
                 {
                     double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
-                    double stretched = dp[(i - 1) & 1][j - 1],
+                    double next = dp[(i - 1) & 1][j - 1],
                            shrinked = (j >= 2 ? dp[(i - 1) & 1][j - 2] : double.PositiveInfinity),
-                           next = dp[(i - 1) & 1][j];
+                           stretched = dp[(i - 1) & 1][j];
                     dp[i & 1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
                 }
             }

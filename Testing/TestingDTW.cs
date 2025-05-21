@@ -159,7 +159,7 @@ namespace Recorder.Testing
                 if (width == 0)
                     result = DTW.DTWDistance(testedUser.sequence, train.sequence);
                 else
-                    result = DTW.CalculateDTWDistanceWithWindow(testedUser.sequence, train.sequence, width);
+                    result = DTW.CalculateDTWDistanceWithBeam(testedUser.sequence, train.sequence, width);
 
                 if (result < minimumCost)
                 {
@@ -310,7 +310,7 @@ namespace Recorder.Testing
                 });
                 stopWatch.Stop();
                 TimeSpan extractdurLocal = stopWatch.Elapsed;
-                String trainextract = $"Training Features extracted in {extractdurLocal:hh\\:mm\\:ss} (hours:minutes:seconds)";
+                String trainextract = $"Testing Features extracted in {extractdurLocal:hh\\:mm\\:ss} (hours:minutes:seconds)";
                 Console.WriteLine(trainextract);
                 stopWatch.Reset();
 
