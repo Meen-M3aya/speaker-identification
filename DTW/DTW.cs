@@ -52,6 +52,7 @@ namespace Recorder
         //    return dp[n][m];
         //}
 
+        // limiting search paths
         static public double CalculateDTWDistanceWithWindow(Sequence a, Sequence b, int width)
         {
             int n = a.Frames.Length, m = b.Frames.Length;
@@ -68,21 +69,50 @@ namespace Recorder
             for (int i = 1; i <= n; i++)
             {
                 for (int j = 0; j <= Math.Min(m, i + width); j++)
-                    dp[1][j] = double.PositiveInfinity;
+                    dp[i & 1][j] = double.PositiveInfinity;
                 for (int j = Math.Max(1, i - width); j <= Math.Min(m, i + width); j++)
                 {
                     double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
-                    double stretched = dp[0][j - 1],
-                           shrinked = (j >= 2 ? dp[0][j - 2] : double.PositiveInfinity),
-                           next = dp[0][j];
-                    dp[1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
+                    double shrinked = dp[(i - 1) & 1][j - 1],
+                           stretched = (j >= 2 ? dp[(i - 1) & 1][j - 2] : double.PositiveInfinity),
+                           next = dp[(i - 1) & 1][j];
+                    dp[i & 1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
                 }
-                var tmp = dp[0];
-                dp[0] = dp[1];
-                dp[1] = tmp;
             }
+            return dp[n & 1][m];
+        }
 
-            return dp[0][m];
+        static public double checkPartialPath(double frameCost, double width, double pathCost)
+        {
+            return (pathCost > frameCost + width) ? double.PositiveInfinity : pathCost;
+        }
+
+        static public double CalculateDTWDistanceWithBeam(Sequence a, Sequence b, int width)
+        {
+            int n = a.Frames.Length, m = b.Frames.Length;
+            double[][] dp = new double[2][];
+            for (int i = 0; i < 2; i++)
+                dp[i] = new double[m + 1];
+
+            for (int i = 0; i < 2; i++)
+                for (int j = 0; j <= m; j++)
+                    dp[i][j] = double.PositiveInfinity;
+
+            dp[0][0] = 0;
+            for (int i = 1; i <= n; i++)
+            {
+                for (int j = 0; j <= m; j++)
+                    dp[i & 1][j] = double.PositiveInfinity;
+                for (int j = 1; j <= m; j++)
+                {
+                    double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
+                    double shrinked = dp[(i - 1) & 1][j - 1],
+                           stretched = (j >= 2 ? dp[(i - 1) & 1][j - 2] : double.PositiveInfinity),
+                           next = dp[(i - 1) & 1][j];
+                    dp[i & 1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
+                }
+            }
+            return dp[n & 1][m];
         }
 
         static public double[][] ConstructDistanceMatrix(int n, int m, Sequence a, Sequence b)
@@ -139,21 +169,17 @@ namespace Recorder
             for (int i = 1; i <= n; i++)
             {
                 for (int j = 0; j <= m; j++)
-                    dp[1][j] = double.PositiveInfinity;
+                    dp[i & 1][j] = double.PositiveInfinity;
                 for (int j = 1; j <= m; j++)
                 {
-                    double distancePrev = EuclideanDistance(a.Frames[i-1].Features, b.Frames[j-1].Features);
-                    double stretched = dp[0][j - 1], 
-                           shrinked = (j >= 2 ? dp[0][j - 2] : double.PositiveInfinity),
-                           next = dp[0][j];
-                    dp[1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
+                    double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
+                    double shrinked = dp[(i - 1) & 1][j - 1],
+                           stretched = (j >= 2 ? dp[(i - 1) & 1][j - 2] : double.PositiveInfinity),
+                           next = dp[(i - 1) & 1][j];
+                    dp[i & 1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
                 }
-                var tmp = dp[0];
-                dp[0] = dp[1];
-                dp[1] = tmp;
             }
-
-            return dp[0][m];
+            return dp[n & 1][m];
         }
     }
 }
