@@ -82,9 +82,9 @@ namespace Recorder
             return dp[n & 1][m];
         }
 
-        static public double checkPartialPath(double frameCost, double width, double pathCost)
+        static public bool checkPartialPath(double frameCost, double width, double pathCost)
         {
-            return (pathCost > frameCost + width) ? double.PositiveInfinity : pathCost;
+            return (pathCost > frameCost + width);
         }
 
         static public double CalculateDTWDistanceWithBeam(Sequence a, Sequence b, int width)
@@ -99,12 +99,17 @@ namespace Recorder
                     dp[i][j] = double.PositiveInfinity;
 
             dp[0][0] = 0;
+            List<int> prunedIndices = new List<int>();
+            for (int j = 1; j <= m; j++)
+            {
+                prunedIndices.Add(j);
+            }
             for (int i = 1; i <= n; i++)
             {
                 for (int j = 0; j <= m; j++)
                     dp[i & 1][j] = double.PositiveInfinity;
                 double bestCost = double.PositiveInfinity;
-                for (int j = 1; j <= m; j++)
+                foreach (int j in prunedIndices)
                 {
                     double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
                     double next = dp[(i - 1) & 1][j - 1],
@@ -113,10 +118,16 @@ namespace Recorder
                     dp[i & 1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
                     bestCost = Math.Min(bestCost, dp[i & 1][j]);
                 }
-                for (int j = 0; j <= m; j++)
+                List<int> newPrunedIndices = new List<int>(); 
+                foreach (int j in prunedIndices)
                 {
-                    bestCost = checkPartialPath(bestCost, bestCost*0.1, dp[i & 1][j]);
+                    bool ret = checkPartialPath(bestCost, bestCost * 0.05, dp[i & 1][j]);
+                    if (!ret)
+                    {
+                        newPrunedIndices.Add(j);
+                    }
                 }
+                prunedIndices = newPrunedIndices;
             }
             return dp[n & 1][m];
         }
