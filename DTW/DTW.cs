@@ -90,56 +90,59 @@ namespace Recorder
             return dp[n & 1][m];
         }
 
-        static public double CalculateDTWDistanceWithBeam(Sequence a, Sequence b, int width)
+static public double CalculateDTWDistanceWithBeam(Sequence a, Sequence b, int width)
+{
+    int n = a.Frames.Length, m = b.Frames.Length;
+    double[][] dp = new double[2][];
+    bool[][] valid = new bool[2][]; // this array tells us whether a cell is pruned
+    for (int i = 0; i < 2; i++)
+    {
+        dp[i] = new double[m + 1];
+        valid[i] = new bool[m + 1];
+    }
+
+    for (int i = 0; i < 2; i++) // initializing all distances to infinity
+        for (int j = 0; j <= m; j++)
+            dp[i][j] = double.PositiveInfinity;
+
+    dp[0][0] = 0; // base case
+    valid[0][0] = true;
+    for (int i = 1; i <= n; i++)
+    {
+        // reset current row
+        for (int j = 0; j <= m; j++)
         {
-            int n = a.Frames.Length, m = b.Frames.Length;
-            double[][] dp = new double[2][];
-            bool[][] valid = new bool[2][];
-            for (int i = 0; i < 2; i++)
-            {
-                dp[i] = new double[m + 1];
-                valid[i] = new bool[m + 1];
-            }
-
-            for (int i = 0; i < 2; i++)
-                for (int j = 0; j <= m; j++)
-                    dp[i][j] = double.PositiveInfinity;
-
-            dp[0][0] = 0;
-            valid[0][0] = true;
-            for (int i = 1; i <= n; i++)
-            {
-                for (int j = 0; j <= m; j++)
-                {
-                    dp[i & 1][j] = double.PositiveInfinity;
-                    valid[i & 1][j] = false;
-                }
-                double bestCost = double.PositiveInfinity;
-                for (int j = 1; j <= m; j++)
-                {
-                    if (!valid[(i - 1) & 1][j] &&
-                        !valid[(i - 1) & 1][j - 1] &&
-                        j >= 2 && !valid[(i - 1) & 1][j - 2])
-                    {
-                        continue;
-                    }
-                    double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
-                    double next = dp[(i - 1) & 1][j - 1],
-                           shrinked = (j >= 2 ? dp[(i - 1) & 1][j - 2] : double.PositiveInfinity),
-                           stretched = dp[(i - 1) & 1][j];
-                    dp[i & 1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
-                    bestCost = Math.Min(bestCost, dp[i & 1][j]);
-                }
-                for (int j = 1; j <= m; j++)
-                {
-                    if (dp[i & 1][j] <= bestCost + bestCost * 0.15)
-                        valid[i & 1][j] = true;
-                    else
-                        dp[i & 1][j] = double.PositiveInfinity;
-                }
-            }
-            return dp[n & 1][m];
+            dp[i & 1][j] = double.PositiveInfinity;
+            valid[i & 1][j] = false;
         }
+        double bestCost = double.PositiveInfinity; // initally set to a large value
+        for (int j = 1; j <= m; j++)
+        {
+            // if all of the predecessors are pruned: invalid transitions so we skip
+            if (!valid[(i - 1) & 1][j] &&
+                !valid[(i - 1) & 1][j - 1] &&
+                j >= 2 && !valid[(i - 1) & 1][j - 2])
+            {
+                continue;
+            }
+            // distance between frames
+            double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
+            double next = dp[(i - 1) & 1][j - 1],
+                    shrinked = (j >= 2 ? dp[(i - 1) & 1][j - 2] : double.PositiveInfinity),
+                    stretched = dp[(i - 1) & 1][j];
+            dp[i & 1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
+            bestCost = Math.Min(bestCost, dp[i & 1][j]);
+        }
+        for (int j = 1; j <= m; j++)
+        {
+            if (dp[i & 1][j] <= bestCost + width)
+                valid[i & 1][j] = true;
+            else
+                dp[i & 1][j] = double.PositiveInfinity;
+        }
+    }
+    return dp[n & 1][m];
+}
 
         static public double[][] ConstructDistanceMatrix(int n, int m, Sequence a, Sequence b)
         {
