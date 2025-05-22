@@ -159,7 +159,7 @@ namespace Recorder.Testing
                 if (width == 0)
                     result = DTW.DTWDistance(testedUser.sequence, train.sequence);
                 else
-                    result = DTW.CalculateDTWDistanceWithWindow(testedUser.sequence, train.sequence, width);
+                    result = DTW.CalculateDTWDistanceWithBeam(testedUser.sequence, train.sequence, width);
 
                 if (result < minimumCost)
                 {
@@ -225,7 +225,7 @@ namespace Recorder.Testing
             if (width == 0)
                 result = DTW.DTWDistance(testingseq.sequence, trainingseq.sequence);
             else
-                result = DTW.CalculateDTWDistanceWithWindow(testingseq.sequence, trainingseq.sequence, width);
+                result = DTW.CalculateDTWDistanceWithBeam(testingseq.sequence, trainingseq.sequence, width);
 
 
             stopwatch.Stop();
@@ -367,7 +367,7 @@ namespace Recorder.Testing
                     if (pruningWidth == 0)
                         result = DTW.DTWDistance(testedUser.sequence, trainSeq.sequence);
                     else
-                        result = DTW.CalculateDTWDistanceWithWindow(testedUser.sequence, trainSeq.sequence, pruningWidth);
+                        result = DTW.CalculateDTWDistanceWithBeam(testedUser.sequence, trainSeq.sequence, pruningWidth);
 
                     if (result < minCost)
                     {

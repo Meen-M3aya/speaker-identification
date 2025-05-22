@@ -87,38 +87,42 @@ namespace Recorder
                     lastUsed[i & 1][j] = i;
                 }
             }
-            return (lastUsed[n & 1][m] == n) ? dp[n & 1][m] : double.PositiveInfinity;
-        }
-
-        static public bool checkPartialPath(double frameCost, double width, double pathCost)
-        {
-            return (pathCost > frameCost + width);
+            return dp[n & 1][m];
         }
 
         static public double CalculateDTWDistanceWithBeam(Sequence a, Sequence b, int width)
         {
             int n = a.Frames.Length, m = b.Frames.Length;
             double[][] dp = new double[2][];
+            bool[][] valid = new bool[2][];
             for (int i = 0; i < 2; i++)
+            {
                 dp[i] = new double[m + 1];
+                valid[i] = new bool[m + 1];
+            }
 
             for (int i = 0; i < 2; i++)
                 for (int j = 0; j <= m; j++)
                     dp[i][j] = double.PositiveInfinity;
 
             dp[0][0] = 0;
-            List<int> prunedIndices = new List<int>();
-            for (int j = 1; j <= m; j++)
-            {
-                prunedIndices.Add(j);
-            }
+            valid[0][0] = true;
             for (int i = 1; i <= n; i++)
             {
                 for (int j = 0; j <= m; j++)
-                    dp[i & 1][j] = double.PositiveInfinity;
-                double bestCost = double.PositiveInfinity;
-                foreach (int j in prunedIndices)
                 {
+                    dp[i & 1][j] = double.PositiveInfinity;
+                    valid[i & 1][j] = false;
+                }
+                double bestCost = double.PositiveInfinity;
+                for (int j = 1; j <= m; j++)
+                {
+                    if (!valid[(i - 1) & 1][j] &&
+                        !valid[(i - 1) & 1][j - 1] &&
+                        j >= 2 && !valid[(i - 1) & 1][j - 2])
+                    {
+                        continue;
+                    }
                     double distancePrev = EuclideanDistance(a.Frames[i - 1].Features, b.Frames[j - 1].Features);
                     double next = dp[(i - 1) & 1][j - 1],
                            shrinked = (j >= 2 ? dp[(i - 1) & 1][j - 2] : double.PositiveInfinity),
@@ -126,16 +130,13 @@ namespace Recorder
                     dp[i & 1][j] = Math.Min(Math.Min(shrinked, stretched), next) + distancePrev;
                     bestCost = Math.Min(bestCost, dp[i & 1][j]);
                 }
-                List<int> newPrunedIndices = new List<int>(); 
-                foreach (int j in prunedIndices)
+                for (int j = 1; j <= m; j++)
                 {
-                    bool ret = checkPartialPath(bestCost, width, dp[i & 1][j]);
-                    if (!ret)
-                    {
-                        newPrunedIndices.Add(j);
-                    }
+                    if (dp[i & 1][j] <= bestCost + bestCost * 0.15)
+                        valid[i & 1][j] = true;
+                    else
+                        dp[i & 1][j] = double.PositiveInfinity;
                 }
-                prunedIndices = newPrunedIndices;
             }
             return dp[n & 1][m];
         }
